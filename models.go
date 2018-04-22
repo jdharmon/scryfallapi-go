@@ -466,8 +466,7 @@ import (
     TypeLine *string `json:"type_line,omitempty"`
     OracleText *string `json:"oracle_text,omitempty"`
     ManaCost *string `json:"mana_cost,omitempty"`
-    // Colors - Possible values include: 'W', 'U', 'B', 'R', 'G'
-    Colors Colors `json:"colors,omitempty"`
+    Colors *[]Colors `json:"colors,omitempty"`
     // ColorIndicator - Possible values include: 'W', 'U', 'B', 'R', 'G'
     ColorIndicator Colors `json:"color_indicator,omitempty"`
     Power *string `json:"power,omitempty"`
