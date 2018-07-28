@@ -26,7 +26,6 @@ func NewCardsClient() CardsClient {
     }
 
 // Autocomplete sends the autocomplete request.
-    //
 func (client CardsClient) Autocomplete(ctx context.Context, q string) (result Catalog, err error) {
     req, err := client.AutocompletePreparer(ctx, q)
     if err != nil {
@@ -84,7 +83,6 @@ func (client CardsClient) Autocomplete(ctx context.Context, q string) (result Ca
     }
 
 // GetAll sends the get all request.
-    //
 func (client CardsClient) GetAll(ctx context.Context, page *int32) (result CardList, err error) {
     req, err := client.GetAllPreparer(ctx, page)
     if err != nil {
@@ -143,8 +141,63 @@ func (client CardsClient) GetAll(ctx context.Context, page *int32) (result CardL
             return
     }
 
+// GetByArenaID sends the get by arena id request.
+func (client CardsClient) GetByArenaID(ctx context.Context, ID int32) (result Card, err error) {
+    req, err := client.GetByArenaIDPreparer(ctx, ID)
+    if err != nil {
+    err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "GetByArenaID", nil , "Failure preparing request")
+    return
+    }
+
+        resp, err := client.GetByArenaIDSender(req)
+        if err != nil {
+        result.Response = autorest.Response{Response: resp}
+        err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "GetByArenaID", resp, "Failure sending request")
+        return
+        }
+
+        result, err = client.GetByArenaIDResponder(resp)
+        if err != nil {
+        err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "GetByArenaID", resp, "Failure responding to request")
+        }
+
+    return
+    }
+
+    // GetByArenaIDPreparer prepares the GetByArenaID request.
+    func (client CardsClient) GetByArenaIDPreparer(ctx context.Context, ID int32) (*http.Request, error) {
+        pathParameters := map[string]interface{} {
+        "id": autorest.Encode("path",ID),
+        }
+
+    preparer := autorest.CreatePreparer(
+    autorest.AsGet(),
+    autorest.WithBaseURL(client.BaseURI),
+    autorest.WithPathParameters("/cards/arena/{id}",pathParameters))
+    return preparer.Prepare((&http.Request{}).WithContext(ctx))
+    }
+
+    // GetByArenaIDSender sends the GetByArenaID request. The method will close the
+    // http.Response Body if it receives an error.
+    func (client CardsClient) GetByArenaIDSender(req *http.Request) (*http.Response, error) {
+        return autorest.SendWithSender(client, req,
+        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+            }
+
+    // GetByArenaIDResponder handles the response to the GetByArenaID request. The method always
+    // closes the http.Response Body.
+    func (client CardsClient) GetByArenaIDResponder(resp *http.Response) (result Card, err error) {
+        err = autorest.Respond(
+        resp,
+        client.ByInspecting(),
+        azure.WithErrorUnlessStatusCode(http.StatusOK),
+        autorest.ByUnmarshallingJSON(&result),
+        autorest.ByClosing())
+        result.Response = autorest.Response{Response: resp}
+            return
+    }
+
 // GetByCodeByNumber sends the get by code by number request.
-    //
 func (client CardsClient) GetByCodeByNumber(ctx context.Context, code string, number int32) (result Card, err error) {
     req, err := client.GetByCodeByNumberPreparer(ctx, code, number)
     if err != nil {
@@ -202,7 +255,6 @@ func (client CardsClient) GetByCodeByNumber(ctx context.Context, code string, nu
     }
 
 // GetByID sends the get by id request.
-    //
 func (client CardsClient) GetByID(ctx context.Context, ID uuid.UUID) (result Card, err error) {
     req, err := client.GetByIDPreparer(ctx, ID)
     if err != nil {
@@ -259,7 +311,6 @@ func (client CardsClient) GetByID(ctx context.Context, ID uuid.UUID) (result Car
     }
 
 // GetByMtgoID sends the get by mtgo id request.
-    //
 func (client CardsClient) GetByMtgoID(ctx context.Context, ID int32) (result Card, err error) {
     req, err := client.GetByMtgoIDPreparer(ctx, ID)
     if err != nil {
@@ -316,7 +367,6 @@ func (client CardsClient) GetByMtgoID(ctx context.Context, ID int32) (result Car
     }
 
 // GetByMultiverseID sends the get by multiverse id request.
-    //
 func (client CardsClient) GetByMultiverseID(ctx context.Context, ID int32) (result Card, err error) {
     req, err := client.GetByMultiverseIDPreparer(ctx, ID)
     if err != nil {
@@ -373,7 +423,6 @@ func (client CardsClient) GetByMultiverseID(ctx context.Context, ID int32) (resu
     }
 
 // GetNamed sends the get named request.
-    //
 func (client CardsClient) GetNamed(ctx context.Context, exact string, fuzzy string, set string, formatParameter string, face string, version string, pretty *bool) (result Card, err error) {
     req, err := client.GetNamedPreparer(ctx, exact, fuzzy, set, formatParameter, face, version, pretty)
     if err != nil {
@@ -503,8 +552,6 @@ func (client CardsClient) GetRandom(ctx context.Context) (result Card, err error
     }
 
 // Search sends the search request.
-    //
-    // unique is  order is  dir is
 func (client CardsClient) Search(ctx context.Context, q string, unique UniqueStrategy, order SortOrder, dir SortDirection, includeExtras *bool, page *int32) (result CardList, err error) {
     req, err := client.SearchPreparer(ctx, q, unique, order, dir, includeExtras, page)
     if err != nil {

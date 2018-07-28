@@ -77,7 +77,6 @@ func (client SymbologyClient) GetAll(ctx context.Context) (result CardSymbolList
     }
 
 // ParseMana sends the parse mana request.
-    //
 func (client SymbologyClient) ParseMana(ctx context.Context, cost string) (result ManaCost, err error) {
     req, err := client.ParseManaPreparer(ctx, cost)
     if err != nil {

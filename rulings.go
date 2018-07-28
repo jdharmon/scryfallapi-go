@@ -26,7 +26,6 @@ func NewRulingsClient() RulingsClient {
     }
 
 // GetByCodeByNumberID sends the get by code by number id request.
-    //
 func (client RulingsClient) GetByCodeByNumberID(ctx context.Context, code string, number int32) (result RulingList, err error) {
     req, err := client.GetByCodeByNumberIDPreparer(ctx, code, number)
     if err != nil {
@@ -84,7 +83,6 @@ func (client RulingsClient) GetByCodeByNumberID(ctx context.Context, code string
     }
 
 // GetByID sends the get by id request.
-    //
 func (client RulingsClient) GetByID(ctx context.Context, ID uuid.UUID) (result RulingList, err error) {
     req, err := client.GetByIDPreparer(ctx, ID)
     if err != nil {
@@ -141,7 +139,6 @@ func (client RulingsClient) GetByID(ctx context.Context, ID uuid.UUID) (result R
     }
 
 // GetByMtgoID sends the get by mtgo id request.
-    //
 func (client RulingsClient) GetByMtgoID(ctx context.Context, ID int32) (result RulingList, err error) {
     req, err := client.GetByMtgoIDPreparer(ctx, ID)
     if err != nil {
@@ -198,7 +195,6 @@ func (client RulingsClient) GetByMtgoID(ctx context.Context, ID int32) (result R
     }
 
 // GetByMultiverseID sends the get by multiverse id request.
-    //
 func (client RulingsClient) GetByMultiverseID(ctx context.Context, ID int32) (result RulingList, err error) {
     req, err := client.GetByMultiverseIDPreparer(ctx, ID)
     if err != nil {

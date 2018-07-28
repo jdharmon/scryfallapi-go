@@ -77,7 +77,6 @@ func (client SetsClient) GetAll(ctx context.Context) (result SetList, err error)
     }
 
 // GetByCode sends the get by code request.
-    //
 func (client SetsClient) GetByCode(ctx context.Context, code string) (result Set, err error) {
     req, err := client.GetByCodePreparer(ctx, code)
     if err != nil {

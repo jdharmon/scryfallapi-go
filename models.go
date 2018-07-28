@@ -60,6 +60,8 @@ import (
         DoubleFacedToken Layouts = "double_faced_token"
                 // Emblem ...
         Emblem Layouts = "emblem"
+                // Flip ...
+        Flip Layouts = "flip"
                 // Host ...
         Host Layouts = "host"
                 // Leveler ...
@@ -85,21 +87,25 @@ import (
             )
     // PossibleLayoutsValues returns an array of possible values for the Layouts const type.
     func PossibleLayoutsValues() []Layouts {
-        return []Layouts{Augment,DoubleFacedToken,Emblem,Host,Leveler,Meld,Normal,Planar,Saga,Scheme,Split,Token,Transform,Vanguard}
+        return []Layouts{Augment,DoubleFacedToken,Emblem,Flip,Host,Leveler,Meld,Normal,Planar,Saga,Scheme,Split,Token,Transform,Vanguard}
     }
 
         // LegalStatus enumerates the values for legal status.
     type LegalStatus string
 
     const (
+                // Banned ...
+        Banned LegalStatus = "banned"
                 // Legal ...
         Legal LegalStatus = "legal"
                 // NotLegal ...
         NotLegal LegalStatus = "not_legal"
+                // Restricted ...
+        Restricted LegalStatus = "restricted"
             )
     // PossibleLegalStatusValues returns an array of possible values for the LegalStatus const type.
     func PossibleLegalStatusValues() []LegalStatus {
-        return []LegalStatus{Legal,NotLegal}
+        return []LegalStatus{Banned,Legal,NotLegal,Restricted}
     }
 
         // Rarity enumerates the values for rarity.
@@ -245,13 +251,14 @@ import (
     OracleID *uuid.UUID `json:"oracle_id,omitempty"`
     MultiverseIds *[]int32 `json:"multiverse_ids,omitempty"`
     MtgoID *int32 `json:"mtgo_id,omitempty"`
+    ArenaID *int32 `json:"arena_id,omitempty"`
     MtgoFoilID *int32 `json:"mtgo_foil_id,omitempty"`
     URI *string `json:"uri,omitempty"`
     ScryfallURI *string `json:"scryfall_uri,omitempty"`
     PrintsSearchURI *string `json:"prints_search_uri,omitempty"`
     RulingsURI *string `json:"rulings_uri,omitempty"`
     Name *string `json:"name,omitempty"`
-    // Layout - Possible values include: 'Normal', 'Split', 'Transform', 'Meld', 'Leveler', 'Saga', 'Planar', 'Scheme', 'Vanguard', 'Token', 'DoubleFacedToken', 'Emblem', 'Augment', 'Host'
+    // Layout - Possible values include: 'Normal', 'Split', 'Flip', 'Transform', 'Meld', 'Leveler', 'Saga', 'Planar', 'Scheme', 'Vanguard', 'Token', 'DoubleFacedToken', 'Emblem', 'Augment', 'Host'
     Layout Layouts `json:"layout,omitempty"`
     Cmc *float64 `json:"cmc,omitempty"`
     TypeLine *string `json:"type_line,omitempty"`
@@ -265,7 +272,7 @@ import (
     Colors *[]Colors `json:"colors,omitempty"`
     ColorIndicator *[]Colors `json:"color_indicator,omitempty"`
     ColorIdentity *[]Colors `json:"color_identity,omitempty"`
-    AllParts *RelatedCards `json:"all_parts,omitempty"`
+    AllParts *[]RelatedCards `json:"all_parts,omitempty"`
     CardFaces *[]CardFace `json:"card_faces,omitempty"`
     Legalities *Legality `json:"legalities,omitempty"`
     Reserved *bool `json:"reserved,omitempty"`
@@ -312,6 +319,9 @@ import (
                 }
                 if(c.MtgoID != nil) {
                 objectMap["mtgo_id"] = c.MtgoID
+                }
+                if(c.ArenaID != nil) {
+                objectMap["arena_id"] = c.ArenaID
                 }
                 if(c.MtgoFoilID != nil) {
                 objectMap["mtgo_foil_id"] = c.MtgoFoilID
@@ -467,8 +477,7 @@ import (
     OracleText *string `json:"oracle_text,omitempty"`
     ManaCost *string `json:"mana_cost,omitempty"`
     Colors *[]Colors `json:"colors,omitempty"`
-    // ColorIndicator - Possible values include: 'W', 'U', 'B', 'R', 'G'
-    ColorIndicator Colors `json:"color_indicator,omitempty"`
+    ColorIndicator *[]Colors `json:"color_indicator,omitempty"`
     Power *string `json:"power,omitempty"`
     Toughness *string `json:"toughness,omitempty"`
     Loyalty *string `json:"loyalty,omitempty"`
@@ -534,29 +543,29 @@ import (
 
     // Legality ...
     type Legality struct {
-    // Standard - Possible values include: 'Legal', 'NotLegal'
+    // Standard - Possible values include: 'Legal', 'NotLegal', 'Restricted', 'Banned'
     Standard LegalStatus `json:"standard,omitempty"`
-    // Future - Possible values include: 'Legal', 'NotLegal'
+    // Future - Possible values include: 'Legal', 'NotLegal', 'Restricted', 'Banned'
     Future LegalStatus `json:"future,omitempty"`
-    // Frontier - Possible values include: 'Legal', 'NotLegal'
+    // Frontier - Possible values include: 'Legal', 'NotLegal', 'Restricted', 'Banned'
     Frontier LegalStatus `json:"frontier,omitempty"`
-    // Modern - Possible values include: 'Legal', 'NotLegal'
+    // Modern - Possible values include: 'Legal', 'NotLegal', 'Restricted', 'Banned'
     Modern LegalStatus `json:"modern,omitempty"`
-    // Legacy - Possible values include: 'Legal', 'NotLegal'
+    // Legacy - Possible values include: 'Legal', 'NotLegal', 'Restricted', 'Banned'
     Legacy LegalStatus `json:"legacy,omitempty"`
-    // Pauper - Possible values include: 'Legal', 'NotLegal'
+    // Pauper - Possible values include: 'Legal', 'NotLegal', 'Restricted', 'Banned'
     Pauper LegalStatus `json:"pauper,omitempty"`
-    // Vintage - Possible values include: 'Legal', 'NotLegal'
+    // Vintage - Possible values include: 'Legal', 'NotLegal', 'Restricted', 'Banned'
     Vintage LegalStatus `json:"vintage,omitempty"`
-    // Penny - Possible values include: 'Legal', 'NotLegal'
+    // Penny - Possible values include: 'Legal', 'NotLegal', 'Restricted', 'Banned'
     Penny LegalStatus `json:"penny,omitempty"`
-    // Commander - Possible values include: 'Legal', 'NotLegal'
+    // Commander - Possible values include: 'Legal', 'NotLegal', 'Restricted', 'Banned'
     Commander LegalStatus `json:"commander,omitempty"`
-    // OnevOne - Possible values include: 'Legal', 'NotLegal'
+    // OnevOne - Possible values include: 'Legal', 'NotLegal', 'Restricted', 'Banned'
     OnevOne LegalStatus `json:"1v1,omitempty"`
-    // Duel - Possible values include: 'Legal', 'NotLegal'
+    // Duel - Possible values include: 'Legal', 'NotLegal', 'Restricted', 'Banned'
     Duel LegalStatus `json:"duel,omitempty"`
-    // Brawl - Possible values include: 'Legal', 'NotLegal'
+    // Brawl - Possible values include: 'Legal', 'NotLegal', 'Restricted', 'Banned'
     Brawl LegalStatus `json:"brawl,omitempty"`
     }
 
