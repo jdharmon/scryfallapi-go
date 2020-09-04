@@ -8,6 +8,7 @@ import (
     "github.com/Azure/go-autorest/autorest/azure"
     "net/http"
     "context"
+    "github.com/Azure/go-autorest/tracing"
 )
 
 // SetsClient is the client for the Sets methods of the Scryfall service.
@@ -19,13 +20,24 @@ func NewSetsClient() SetsClient {
     return NewSetsClientWithBaseURI(DefaultBaseURI, )
 }
 
-// NewSetsClientWithBaseURI creates an instance of the SetsClient client.
+// NewSetsClientWithBaseURI creates an instance of the SetsClient client using a custom endpoint.  Use this when
+// interacting with an Azure cloud that uses a non-standard base URI (sovereign clouds, Azure stack).
     func NewSetsClientWithBaseURI(baseURI string, ) SetsClient {
         return SetsClient{ NewWithBaseURI(baseURI, )}
     }
 
 // GetAll sends the get all request.
 func (client SetsClient) GetAll(ctx context.Context) (result SetList, err error) {
+    if tracing.IsEnabled() {
+        ctx = tracing.StartSpan(ctx, fqdn + "/SetsClient.GetAll")
+        defer func() {
+            sc := -1
+        if result.Response.Response != nil {
+        sc = result.Response.Response.StatusCode
+        }
+            tracing.EndSpan(ctx, sc, err)
+        }()
+    }
     req, err := client.GetAllPreparer(ctx)
     if err != nil {
     err = autorest.NewErrorWithError(err, "scryfall.SetsClient", "GetAll", nil , "Failure preparing request")
@@ -45,39 +57,47 @@ func (client SetsClient) GetAll(ctx context.Context) (result SetList, err error)
         }
 
     return
-    }
+}
 
     // GetAllPreparer prepares the GetAll request.
     func (client SetsClient) GetAllPreparer(ctx context.Context) (*http.Request, error) {
     preparer := autorest.CreatePreparer(
-    autorest.AsGet(),
-    autorest.WithBaseURL(client.BaseURI),
-    autorest.WithPath("/sets"))
+autorest.AsGet(),
+autorest.WithBaseURL(client.BaseURI),
+autorest.WithPath("/sets"))
     return preparer.Prepare((&http.Request{}).WithContext(ctx))
     }
 
     // GetAllSender sends the GetAll request. The method will close the
     // http.Response Body if it receives an error.
     func (client SetsClient) GetAllSender(req *http.Request) (*http.Response, error) {
-        return autorest.SendWithSender(client, req,
-        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+            return client.Send(req, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
             }
 
     // GetAllResponder handles the response to the GetAll request. The method always
     // closes the http.Response Body.
     func (client SetsClient) GetAllResponder(resp *http.Response) (result SetList, err error) {
-        err = autorest.Respond(
-        resp,
-        client.ByInspecting(),
-        azure.WithErrorUnlessStatusCode(http.StatusOK),
-        autorest.ByUnmarshallingJSON(&result),
-        autorest.ByClosing())
-        result.Response = autorest.Response{Response: resp}
+            err = autorest.Respond(
+            resp,
+            azure.WithErrorUnlessStatusCode(http.StatusOK),
+            autorest.ByUnmarshallingJSON(&result),
+            autorest.ByClosing())
+            result.Response = autorest.Response{Response: resp}
             return
     }
 
 // GetByCode sends the get by code request.
 func (client SetsClient) GetByCode(ctx context.Context, code string) (result Set, err error) {
+    if tracing.IsEnabled() {
+        ctx = tracing.StartSpan(ctx, fqdn + "/SetsClient.GetByCode")
+        defer func() {
+            sc := -1
+        if result.Response.Response != nil {
+        sc = result.Response.Response.StatusCode
+        }
+            tracing.EndSpan(ctx, sc, err)
+        }()
+    }
     req, err := client.GetByCodePreparer(ctx, code)
     if err != nil {
     err = autorest.NewErrorWithError(err, "scryfall.SetsClient", "GetByCode", nil , "Failure preparing request")
@@ -97,7 +117,7 @@ func (client SetsClient) GetByCode(ctx context.Context, code string) (result Set
         }
 
     return
-    }
+}
 
     // GetByCodePreparer prepares the GetByCode request.
     func (client SetsClient) GetByCodePreparer(ctx context.Context, code string) (*http.Request, error) {
@@ -106,29 +126,27 @@ func (client SetsClient) GetByCode(ctx context.Context, code string) (result Set
         }
 
     preparer := autorest.CreatePreparer(
-    autorest.AsGet(),
-    autorest.WithBaseURL(client.BaseURI),
-    autorest.WithPathParameters("/sets/{code}",pathParameters))
+autorest.AsGet(),
+autorest.WithBaseURL(client.BaseURI),
+autorest.WithPathParameters("/sets/{code}",pathParameters))
     return preparer.Prepare((&http.Request{}).WithContext(ctx))
     }
 
     // GetByCodeSender sends the GetByCode request. The method will close the
     // http.Response Body if it receives an error.
     func (client SetsClient) GetByCodeSender(req *http.Request) (*http.Response, error) {
-        return autorest.SendWithSender(client, req,
-        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+            return client.Send(req, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
             }
 
     // GetByCodeResponder handles the response to the GetByCode request. The method always
     // closes the http.Response Body.
     func (client SetsClient) GetByCodeResponder(resp *http.Response) (result Set, err error) {
-        err = autorest.Respond(
-        resp,
-        client.ByInspecting(),
-        azure.WithErrorUnlessStatusCode(http.StatusOK),
-        autorest.ByUnmarshallingJSON(&result),
-        autorest.ByClosing())
-        result.Response = autorest.Response{Response: resp}
+            err = autorest.Respond(
+            resp,
+            azure.WithErrorUnlessStatusCode(http.StatusOK),
+            autorest.ByUnmarshallingJSON(&result),
+            autorest.ByClosing())
+            result.Response = autorest.Response{Response: resp}
             return
     }
 

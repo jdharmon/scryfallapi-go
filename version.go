@@ -7,7 +7,7 @@ package scryfall
 
 // UserAgent returns the UserAgent string to use when sending http.Requests.
 func UserAgent() string {
-    return "Azure-SDK-For-Go/0.0.0 scryfall/v1"
+    return "Azure-SDK-For-Go/" + Version() + " scryfall/v1"
 }
 
 // Version returns the semantic version (see http://semver.org) of the client.

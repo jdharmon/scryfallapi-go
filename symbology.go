@@ -8,6 +8,7 @@ import (
     "github.com/Azure/go-autorest/autorest/azure"
     "net/http"
     "context"
+    "github.com/Azure/go-autorest/tracing"
 )
 
 // SymbologyClient is the client for the Symbology methods of the Scryfall service.
@@ -19,13 +20,24 @@ func NewSymbologyClient() SymbologyClient {
     return NewSymbologyClientWithBaseURI(DefaultBaseURI, )
 }
 
-// NewSymbologyClientWithBaseURI creates an instance of the SymbologyClient client.
+// NewSymbologyClientWithBaseURI creates an instance of the SymbologyClient client using a custom endpoint.  Use this
+// when interacting with an Azure cloud that uses a non-standard base URI (sovereign clouds, Azure stack).
     func NewSymbologyClientWithBaseURI(baseURI string, ) SymbologyClient {
         return SymbologyClient{ NewWithBaseURI(baseURI, )}
     }
 
 // GetAll sends the get all request.
 func (client SymbologyClient) GetAll(ctx context.Context) (result CardSymbolList, err error) {
+    if tracing.IsEnabled() {
+        ctx = tracing.StartSpan(ctx, fqdn + "/SymbologyClient.GetAll")
+        defer func() {
+            sc := -1
+        if result.Response.Response != nil {
+        sc = result.Response.Response.StatusCode
+        }
+            tracing.EndSpan(ctx, sc, err)
+        }()
+    }
     req, err := client.GetAllPreparer(ctx)
     if err != nil {
     err = autorest.NewErrorWithError(err, "scryfall.SymbologyClient", "GetAll", nil , "Failure preparing request")
@@ -45,39 +57,47 @@ func (client SymbologyClient) GetAll(ctx context.Context) (result CardSymbolList
         }
 
     return
-    }
+}
 
     // GetAllPreparer prepares the GetAll request.
     func (client SymbologyClient) GetAllPreparer(ctx context.Context) (*http.Request, error) {
     preparer := autorest.CreatePreparer(
-    autorest.AsGet(),
-    autorest.WithBaseURL(client.BaseURI),
-    autorest.WithPath("/symbology"))
+autorest.AsGet(),
+autorest.WithBaseURL(client.BaseURI),
+autorest.WithPath("/symbology"))
     return preparer.Prepare((&http.Request{}).WithContext(ctx))
     }
 
     // GetAllSender sends the GetAll request. The method will close the
     // http.Response Body if it receives an error.
     func (client SymbologyClient) GetAllSender(req *http.Request) (*http.Response, error) {
-        return autorest.SendWithSender(client, req,
-        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+            return client.Send(req, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
             }
 
     // GetAllResponder handles the response to the GetAll request. The method always
     // closes the http.Response Body.
     func (client SymbologyClient) GetAllResponder(resp *http.Response) (result CardSymbolList, err error) {
-        err = autorest.Respond(
-        resp,
-        client.ByInspecting(),
-        azure.WithErrorUnlessStatusCode(http.StatusOK),
-        autorest.ByUnmarshallingJSON(&result),
-        autorest.ByClosing())
-        result.Response = autorest.Response{Response: resp}
+            err = autorest.Respond(
+            resp,
+            azure.WithErrorUnlessStatusCode(http.StatusOK),
+            autorest.ByUnmarshallingJSON(&result),
+            autorest.ByClosing())
+            result.Response = autorest.Response{Response: resp}
             return
     }
 
 // ParseMana sends the parse mana request.
 func (client SymbologyClient) ParseMana(ctx context.Context, cost string) (result ManaCost, err error) {
+    if tracing.IsEnabled() {
+        ctx = tracing.StartSpan(ctx, fqdn + "/SymbologyClient.ParseMana")
+        defer func() {
+            sc := -1
+        if result.Response.Response != nil {
+        sc = result.Response.Response.StatusCode
+        }
+            tracing.EndSpan(ctx, sc, err)
+        }()
+    }
     req, err := client.ParseManaPreparer(ctx, cost)
     if err != nil {
     err = autorest.NewErrorWithError(err, "scryfall.SymbologyClient", "ParseMana", nil , "Failure preparing request")
@@ -97,39 +117,37 @@ func (client SymbologyClient) ParseMana(ctx context.Context, cost string) (resul
         }
 
     return
-    }
+}
 
     // ParseManaPreparer prepares the ParseMana request.
     func (client SymbologyClient) ParseManaPreparer(ctx context.Context, cost string) (*http.Request, error) {
-                queryParameters := map[string]interface{} {
-        "cost": autorest.Encode("query",cost),
-        }
+    queryParameters := map[string]interface{} {
+    "cost": autorest.Encode("query",cost),
+    }
 
     preparer := autorest.CreatePreparer(
-    autorest.AsGet(),
-    autorest.WithBaseURL(client.BaseURI),
-    autorest.WithPath("/symbology/parse-mana"),
-    autorest.WithQueryParameters(queryParameters))
+autorest.AsGet(),
+autorest.WithBaseURL(client.BaseURI),
+autorest.WithPath("/symbology/parse-mana"),
+autorest.WithQueryParameters(queryParameters))
     return preparer.Prepare((&http.Request{}).WithContext(ctx))
     }
 
     // ParseManaSender sends the ParseMana request. The method will close the
     // http.Response Body if it receives an error.
     func (client SymbologyClient) ParseManaSender(req *http.Request) (*http.Response, error) {
-        return autorest.SendWithSender(client, req,
-        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+            return client.Send(req, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
             }
 
     // ParseManaResponder handles the response to the ParseMana request. The method always
     // closes the http.Response Body.
     func (client SymbologyClient) ParseManaResponder(resp *http.Response) (result ManaCost, err error) {
-        err = autorest.Respond(
-        resp,
-        client.ByInspecting(),
-        azure.WithErrorUnlessStatusCode(http.StatusOK,http.StatusCreated),
-        autorest.ByUnmarshallingJSON(&result),
-        autorest.ByClosing())
-        result.Response = autorest.Response{Response: resp}
+            err = autorest.Respond(
+            resp,
+            azure.WithErrorUnlessStatusCode(http.StatusOK,http.StatusCreated),
+            autorest.ByUnmarshallingJSON(&result),
+            autorest.ByClosing())
+            result.Response = autorest.Response{Response: resp}
             return
     }
 

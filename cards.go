@@ -8,6 +8,7 @@ import (
     "github.com/Azure/go-autorest/autorest/azure"
     "net/http"
     "context"
+    "github.com/Azure/go-autorest/tracing"
     "github.com/satori/go.uuid"
 )
 
@@ -20,13 +21,24 @@ func NewCardsClient() CardsClient {
     return NewCardsClientWithBaseURI(DefaultBaseURI, )
 }
 
-// NewCardsClientWithBaseURI creates an instance of the CardsClient client.
+// NewCardsClientWithBaseURI creates an instance of the CardsClient client using a custom endpoint.  Use this when
+// interacting with an Azure cloud that uses a non-standard base URI (sovereign clouds, Azure stack).
     func NewCardsClientWithBaseURI(baseURI string, ) CardsClient {
         return CardsClient{ NewWithBaseURI(baseURI, )}
     }
 
 // Autocomplete sends the autocomplete request.
 func (client CardsClient) Autocomplete(ctx context.Context, q string) (result Catalog, err error) {
+    if tracing.IsEnabled() {
+        ctx = tracing.StartSpan(ctx, fqdn + "/CardsClient.Autocomplete")
+        defer func() {
+            sc := -1
+        if result.Response.Response != nil {
+        sc = result.Response.Response.StatusCode
+        }
+            tracing.EndSpan(ctx, sc, err)
+        }()
+    }
     req, err := client.AutocompletePreparer(ctx, q)
     if err != nil {
     err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "Autocomplete", nil , "Failure preparing request")
@@ -46,103 +58,52 @@ func (client CardsClient) Autocomplete(ctx context.Context, q string) (result Ca
         }
 
     return
-    }
+}
 
     // AutocompletePreparer prepares the Autocomplete request.
     func (client CardsClient) AutocompletePreparer(ctx context.Context, q string) (*http.Request, error) {
-                queryParameters := map[string]interface{} {
-        "q": autorest.Encode("query",q),
-        }
+    queryParameters := map[string]interface{} {
+    "q": autorest.Encode("query",q),
+    }
 
     preparer := autorest.CreatePreparer(
-    autorest.AsGet(),
-    autorest.WithBaseURL(client.BaseURI),
-    autorest.WithPath("/cards/autocomplete"),
-    autorest.WithQueryParameters(queryParameters))
+autorest.AsGet(),
+autorest.WithBaseURL(client.BaseURI),
+autorest.WithPath("/cards/autocomplete"),
+autorest.WithQueryParameters(queryParameters))
     return preparer.Prepare((&http.Request{}).WithContext(ctx))
     }
 
     // AutocompleteSender sends the Autocomplete request. The method will close the
     // http.Response Body if it receives an error.
     func (client CardsClient) AutocompleteSender(req *http.Request) (*http.Response, error) {
-        return autorest.SendWithSender(client, req,
-        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+            return client.Send(req, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
             }
 
     // AutocompleteResponder handles the response to the Autocomplete request. The method always
     // closes the http.Response Body.
     func (client CardsClient) AutocompleteResponder(resp *http.Response) (result Catalog, err error) {
-        err = autorest.Respond(
-        resp,
-        client.ByInspecting(),
-        azure.WithErrorUnlessStatusCode(http.StatusOK),
-        autorest.ByUnmarshallingJSON(&result),
-        autorest.ByClosing())
-        result.Response = autorest.Response{Response: resp}
-            return
-    }
-
-// GetAll sends the get all request.
-func (client CardsClient) GetAll(ctx context.Context, page *int32) (result CardList, err error) {
-    req, err := client.GetAllPreparer(ctx, page)
-    if err != nil {
-    err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "GetAll", nil , "Failure preparing request")
-    return
-    }
-
-        resp, err := client.GetAllSender(req)
-        if err != nil {
-        result.Response = autorest.Response{Response: resp}
-        err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "GetAll", resp, "Failure sending request")
-        return
-        }
-
-        result, err = client.GetAllResponder(resp)
-        if err != nil {
-        err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "GetAll", resp, "Failure responding to request")
-        }
-
-    return
-    }
-
-    // GetAllPreparer prepares the GetAll request.
-    func (client CardsClient) GetAllPreparer(ctx context.Context, page *int32) (*http.Request, error) {
-                queryParameters := map[string]interface{} {
-        }
-            if page != nil {
-            queryParameters["page"] = autorest.Encode("query",*page)
-            }
-
-    preparer := autorest.CreatePreparer(
-    autorest.AsGet(),
-    autorest.WithBaseURL(client.BaseURI),
-    autorest.WithPath("/cards"),
-    autorest.WithQueryParameters(queryParameters))
-    return preparer.Prepare((&http.Request{}).WithContext(ctx))
-    }
-
-    // GetAllSender sends the GetAll request. The method will close the
-    // http.Response Body if it receives an error.
-    func (client CardsClient) GetAllSender(req *http.Request) (*http.Response, error) {
-        return autorest.SendWithSender(client, req,
-        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-            }
-
-    // GetAllResponder handles the response to the GetAll request. The method always
-    // closes the http.Response Body.
-    func (client CardsClient) GetAllResponder(resp *http.Response) (result CardList, err error) {
-        err = autorest.Respond(
-        resp,
-        client.ByInspecting(),
-        azure.WithErrorUnlessStatusCode(http.StatusOK),
-        autorest.ByUnmarshallingJSON(&result),
-        autorest.ByClosing())
-        result.Response = autorest.Response{Response: resp}
+            err = autorest.Respond(
+            resp,
+            azure.WithErrorUnlessStatusCode(http.StatusOK),
+            autorest.ByUnmarshallingJSON(&result),
+            autorest.ByClosing())
+            result.Response = autorest.Response{Response: resp}
             return
     }
 
 // GetByArenaID sends the get by arena id request.
 func (client CardsClient) GetByArenaID(ctx context.Context, ID int32) (result Card, err error) {
+    if tracing.IsEnabled() {
+        ctx = tracing.StartSpan(ctx, fqdn + "/CardsClient.GetByArenaID")
+        defer func() {
+            sc := -1
+        if result.Response.Response != nil {
+        sc = result.Response.Response.StatusCode
+        }
+            tracing.EndSpan(ctx, sc, err)
+        }()
+    }
     req, err := client.GetByArenaIDPreparer(ctx, ID)
     if err != nil {
     err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "GetByArenaID", nil , "Failure preparing request")
@@ -162,7 +123,7 @@ func (client CardsClient) GetByArenaID(ctx context.Context, ID int32) (result Ca
         }
 
     return
-    }
+}
 
     // GetByArenaIDPreparer prepares the GetByArenaID request.
     func (client CardsClient) GetByArenaIDPreparer(ctx context.Context, ID int32) (*http.Request, error) {
@@ -171,34 +132,42 @@ func (client CardsClient) GetByArenaID(ctx context.Context, ID int32) (result Ca
         }
 
     preparer := autorest.CreatePreparer(
-    autorest.AsGet(),
-    autorest.WithBaseURL(client.BaseURI),
-    autorest.WithPathParameters("/cards/arena/{id}",pathParameters))
+autorest.AsGet(),
+autorest.WithBaseURL(client.BaseURI),
+autorest.WithPathParameters("/cards/arena/{id}",pathParameters))
     return preparer.Prepare((&http.Request{}).WithContext(ctx))
     }
 
     // GetByArenaIDSender sends the GetByArenaID request. The method will close the
     // http.Response Body if it receives an error.
     func (client CardsClient) GetByArenaIDSender(req *http.Request) (*http.Response, error) {
-        return autorest.SendWithSender(client, req,
-        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+            return client.Send(req, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
             }
 
     // GetByArenaIDResponder handles the response to the GetByArenaID request. The method always
     // closes the http.Response Body.
     func (client CardsClient) GetByArenaIDResponder(resp *http.Response) (result Card, err error) {
-        err = autorest.Respond(
-        resp,
-        client.ByInspecting(),
-        azure.WithErrorUnlessStatusCode(http.StatusOK),
-        autorest.ByUnmarshallingJSON(&result),
-        autorest.ByClosing())
-        result.Response = autorest.Response{Response: resp}
+            err = autorest.Respond(
+            resp,
+            azure.WithErrorUnlessStatusCode(http.StatusOK),
+            autorest.ByUnmarshallingJSON(&result),
+            autorest.ByClosing())
+            result.Response = autorest.Response{Response: resp}
             return
     }
 
 // GetByCodeByNumber sends the get by code by number request.
 func (client CardsClient) GetByCodeByNumber(ctx context.Context, code string, number int32) (result Card, err error) {
+    if tracing.IsEnabled() {
+        ctx = tracing.StartSpan(ctx, fqdn + "/CardsClient.GetByCodeByNumber")
+        defer func() {
+            sc := -1
+        if result.Response.Response != nil {
+        sc = result.Response.Response.StatusCode
+        }
+            tracing.EndSpan(ctx, sc, err)
+        }()
+    }
     req, err := client.GetByCodeByNumberPreparer(ctx, code, number)
     if err != nil {
     err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "GetByCodeByNumber", nil , "Failure preparing request")
@@ -218,7 +187,7 @@ func (client CardsClient) GetByCodeByNumber(ctx context.Context, code string, nu
         }
 
     return
-    }
+}
 
     // GetByCodeByNumberPreparer prepares the GetByCodeByNumber request.
     func (client CardsClient) GetByCodeByNumberPreparer(ctx context.Context, code string, number int32) (*http.Request, error) {
@@ -228,34 +197,42 @@ func (client CardsClient) GetByCodeByNumber(ctx context.Context, code string, nu
         }
 
     preparer := autorest.CreatePreparer(
-    autorest.AsGet(),
-    autorest.WithBaseURL(client.BaseURI),
-    autorest.WithPathParameters("/cards/{code}/{number}",pathParameters))
+autorest.AsGet(),
+autorest.WithBaseURL(client.BaseURI),
+autorest.WithPathParameters("/cards/{code}/{number}",pathParameters))
     return preparer.Prepare((&http.Request{}).WithContext(ctx))
     }
 
     // GetByCodeByNumberSender sends the GetByCodeByNumber request. The method will close the
     // http.Response Body if it receives an error.
     func (client CardsClient) GetByCodeByNumberSender(req *http.Request) (*http.Response, error) {
-        return autorest.SendWithSender(client, req,
-        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+            return client.Send(req, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
             }
 
     // GetByCodeByNumberResponder handles the response to the GetByCodeByNumber request. The method always
     // closes the http.Response Body.
     func (client CardsClient) GetByCodeByNumberResponder(resp *http.Response) (result Card, err error) {
-        err = autorest.Respond(
-        resp,
-        client.ByInspecting(),
-        azure.WithErrorUnlessStatusCode(http.StatusOK),
-        autorest.ByUnmarshallingJSON(&result),
-        autorest.ByClosing())
-        result.Response = autorest.Response{Response: resp}
+            err = autorest.Respond(
+            resp,
+            azure.WithErrorUnlessStatusCode(http.StatusOK),
+            autorest.ByUnmarshallingJSON(&result),
+            autorest.ByClosing())
+            result.Response = autorest.Response{Response: resp}
             return
     }
 
 // GetByID sends the get by id request.
 func (client CardsClient) GetByID(ctx context.Context, ID uuid.UUID) (result Card, err error) {
+    if tracing.IsEnabled() {
+        ctx = tracing.StartSpan(ctx, fqdn + "/CardsClient.GetByID")
+        defer func() {
+            sc := -1
+        if result.Response.Response != nil {
+        sc = result.Response.Response.StatusCode
+        }
+            tracing.EndSpan(ctx, sc, err)
+        }()
+    }
     req, err := client.GetByIDPreparer(ctx, ID)
     if err != nil {
     err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "GetByID", nil , "Failure preparing request")
@@ -275,7 +252,7 @@ func (client CardsClient) GetByID(ctx context.Context, ID uuid.UUID) (result Car
         }
 
     return
-    }
+}
 
     // GetByIDPreparer prepares the GetByID request.
     func (client CardsClient) GetByIDPreparer(ctx context.Context, ID uuid.UUID) (*http.Request, error) {
@@ -284,34 +261,42 @@ func (client CardsClient) GetByID(ctx context.Context, ID uuid.UUID) (result Car
         }
 
     preparer := autorest.CreatePreparer(
-    autorest.AsGet(),
-    autorest.WithBaseURL(client.BaseURI),
-    autorest.WithPathParameters("/cards/{id}",pathParameters))
+autorest.AsGet(),
+autorest.WithBaseURL(client.BaseURI),
+autorest.WithPathParameters("/cards/{id}",pathParameters))
     return preparer.Prepare((&http.Request{}).WithContext(ctx))
     }
 
     // GetByIDSender sends the GetByID request. The method will close the
     // http.Response Body if it receives an error.
     func (client CardsClient) GetByIDSender(req *http.Request) (*http.Response, error) {
-        return autorest.SendWithSender(client, req,
-        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+            return client.Send(req, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
             }
 
     // GetByIDResponder handles the response to the GetByID request. The method always
     // closes the http.Response Body.
     func (client CardsClient) GetByIDResponder(resp *http.Response) (result Card, err error) {
-        err = autorest.Respond(
-        resp,
-        client.ByInspecting(),
-        azure.WithErrorUnlessStatusCode(http.StatusOK),
-        autorest.ByUnmarshallingJSON(&result),
-        autorest.ByClosing())
-        result.Response = autorest.Response{Response: resp}
+            err = autorest.Respond(
+            resp,
+            azure.WithErrorUnlessStatusCode(http.StatusOK),
+            autorest.ByUnmarshallingJSON(&result),
+            autorest.ByClosing())
+            result.Response = autorest.Response{Response: resp}
             return
     }
 
 // GetByMtgoID sends the get by mtgo id request.
 func (client CardsClient) GetByMtgoID(ctx context.Context, ID int32) (result Card, err error) {
+    if tracing.IsEnabled() {
+        ctx = tracing.StartSpan(ctx, fqdn + "/CardsClient.GetByMtgoID")
+        defer func() {
+            sc := -1
+        if result.Response.Response != nil {
+        sc = result.Response.Response.StatusCode
+        }
+            tracing.EndSpan(ctx, sc, err)
+        }()
+    }
     req, err := client.GetByMtgoIDPreparer(ctx, ID)
     if err != nil {
     err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "GetByMtgoID", nil , "Failure preparing request")
@@ -331,7 +316,7 @@ func (client CardsClient) GetByMtgoID(ctx context.Context, ID int32) (result Car
         }
 
     return
-    }
+}
 
     // GetByMtgoIDPreparer prepares the GetByMtgoID request.
     func (client CardsClient) GetByMtgoIDPreparer(ctx context.Context, ID int32) (*http.Request, error) {
@@ -340,34 +325,42 @@ func (client CardsClient) GetByMtgoID(ctx context.Context, ID int32) (result Car
         }
 
     preparer := autorest.CreatePreparer(
-    autorest.AsGet(),
-    autorest.WithBaseURL(client.BaseURI),
-    autorest.WithPathParameters("/cards/mtgo/{id}",pathParameters))
+autorest.AsGet(),
+autorest.WithBaseURL(client.BaseURI),
+autorest.WithPathParameters("/cards/mtgo/{id}",pathParameters))
     return preparer.Prepare((&http.Request{}).WithContext(ctx))
     }
 
     // GetByMtgoIDSender sends the GetByMtgoID request. The method will close the
     // http.Response Body if it receives an error.
     func (client CardsClient) GetByMtgoIDSender(req *http.Request) (*http.Response, error) {
-        return autorest.SendWithSender(client, req,
-        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+            return client.Send(req, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
             }
 
     // GetByMtgoIDResponder handles the response to the GetByMtgoID request. The method always
     // closes the http.Response Body.
     func (client CardsClient) GetByMtgoIDResponder(resp *http.Response) (result Card, err error) {
-        err = autorest.Respond(
-        resp,
-        client.ByInspecting(),
-        azure.WithErrorUnlessStatusCode(http.StatusOK),
-        autorest.ByUnmarshallingJSON(&result),
-        autorest.ByClosing())
-        result.Response = autorest.Response{Response: resp}
+            err = autorest.Respond(
+            resp,
+            azure.WithErrorUnlessStatusCode(http.StatusOK),
+            autorest.ByUnmarshallingJSON(&result),
+            autorest.ByClosing())
+            result.Response = autorest.Response{Response: resp}
             return
     }
 
 // GetByMultiverseID sends the get by multiverse id request.
 func (client CardsClient) GetByMultiverseID(ctx context.Context, ID int32) (result Card, err error) {
+    if tracing.IsEnabled() {
+        ctx = tracing.StartSpan(ctx, fqdn + "/CardsClient.GetByMultiverseID")
+        defer func() {
+            sc := -1
+        if result.Response.Response != nil {
+        sc = result.Response.Response.StatusCode
+        }
+            tracing.EndSpan(ctx, sc, err)
+        }()
+    }
     req, err := client.GetByMultiverseIDPreparer(ctx, ID)
     if err != nil {
     err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "GetByMultiverseID", nil , "Failure preparing request")
@@ -387,7 +380,7 @@ func (client CardsClient) GetByMultiverseID(ctx context.Context, ID int32) (resu
         }
 
     return
-    }
+}
 
     // GetByMultiverseIDPreparer prepares the GetByMultiverseID request.
     func (client CardsClient) GetByMultiverseIDPreparer(ctx context.Context, ID int32) (*http.Request, error) {
@@ -396,34 +389,42 @@ func (client CardsClient) GetByMultiverseID(ctx context.Context, ID int32) (resu
         }
 
     preparer := autorest.CreatePreparer(
-    autorest.AsGet(),
-    autorest.WithBaseURL(client.BaseURI),
-    autorest.WithPathParameters("/cards/multiverse/{id}",pathParameters))
+autorest.AsGet(),
+autorest.WithBaseURL(client.BaseURI),
+autorest.WithPathParameters("/cards/multiverse/{id}",pathParameters))
     return preparer.Prepare((&http.Request{}).WithContext(ctx))
     }
 
     // GetByMultiverseIDSender sends the GetByMultiverseID request. The method will close the
     // http.Response Body if it receives an error.
     func (client CardsClient) GetByMultiverseIDSender(req *http.Request) (*http.Response, error) {
-        return autorest.SendWithSender(client, req,
-        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+            return client.Send(req, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
             }
 
     // GetByMultiverseIDResponder handles the response to the GetByMultiverseID request. The method always
     // closes the http.Response Body.
     func (client CardsClient) GetByMultiverseIDResponder(resp *http.Response) (result Card, err error) {
-        err = autorest.Respond(
-        resp,
-        client.ByInspecting(),
-        azure.WithErrorUnlessStatusCode(http.StatusOK),
-        autorest.ByUnmarshallingJSON(&result),
-        autorest.ByClosing())
-        result.Response = autorest.Response{Response: resp}
+            err = autorest.Respond(
+            resp,
+            azure.WithErrorUnlessStatusCode(http.StatusOK),
+            autorest.ByUnmarshallingJSON(&result),
+            autorest.ByClosing())
+            result.Response = autorest.Response{Response: resp}
             return
     }
 
 // GetNamed sends the get named request.
 func (client CardsClient) GetNamed(ctx context.Context, exact string, fuzzy string, set string, formatParameter string, face string, version string, pretty *bool) (result Card, err error) {
+    if tracing.IsEnabled() {
+        ctx = tracing.StartSpan(ctx, fqdn + "/CardsClient.GetNamed")
+        defer func() {
+            sc := -1
+        if result.Response.Response != nil {
+        sc = result.Response.Response.StatusCode
+        }
+            tracing.EndSpan(ctx, sc, err)
+        }()
+    }
     req, err := client.GetNamedPreparer(ctx, exact, fuzzy, set, formatParameter, face, version, pretty)
     if err != nil {
     err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "GetNamed", nil , "Failure preparing request")
@@ -443,64 +444,72 @@ func (client CardsClient) GetNamed(ctx context.Context, exact string, fuzzy stri
         }
 
     return
-    }
+}
 
     // GetNamedPreparer prepares the GetNamed request.
     func (client CardsClient) GetNamedPreparer(ctx context.Context, exact string, fuzzy string, set string, formatParameter string, face string, version string, pretty *bool) (*http.Request, error) {
-                queryParameters := map[string]interface{} {
+    queryParameters := map[string]interface{} {
+    }
+        if len(exact) > 0 {
+        queryParameters["exact"] = autorest.Encode("query",exact)
         }
-            if len(exact) > 0 {
-            queryParameters["exact"] = autorest.Encode("query",exact)
-            }
-            if len(fuzzy) > 0 {
-            queryParameters["fuzzy"] = autorest.Encode("query",fuzzy)
-            }
-            if len(set) > 0 {
-            queryParameters["set"] = autorest.Encode("query",set)
-            }
-            if len(formatParameter) > 0 {
-            queryParameters["format"] = autorest.Encode("query",formatParameter)
-            }
-            if len(face) > 0 {
-            queryParameters["face"] = autorest.Encode("query",face)
-            }
-            if len(version) > 0 {
-            queryParameters["version"] = autorest.Encode("query",version)
-            }
-            if pretty != nil {
-            queryParameters["pretty"] = autorest.Encode("query",*pretty)
-            }
+        if len(fuzzy) > 0 {
+        queryParameters["fuzzy"] = autorest.Encode("query",fuzzy)
+        }
+        if len(set) > 0 {
+        queryParameters["set"] = autorest.Encode("query",set)
+        }
+        if len(formatParameter) > 0 {
+        queryParameters["format"] = autorest.Encode("query",formatParameter)
+        }
+        if len(face) > 0 {
+        queryParameters["face"] = autorest.Encode("query",face)
+        }
+        if len(version) > 0 {
+        queryParameters["version"] = autorest.Encode("query",version)
+        }
+        if pretty != nil {
+        queryParameters["pretty"] = autorest.Encode("query",*pretty)
+        }
 
     preparer := autorest.CreatePreparer(
-    autorest.AsGet(),
-    autorest.WithBaseURL(client.BaseURI),
-    autorest.WithPath("/cards/named"),
-    autorest.WithQueryParameters(queryParameters))
+autorest.AsGet(),
+autorest.WithBaseURL(client.BaseURI),
+autorest.WithPath("/cards/named"),
+autorest.WithQueryParameters(queryParameters))
     return preparer.Prepare((&http.Request{}).WithContext(ctx))
     }
 
     // GetNamedSender sends the GetNamed request. The method will close the
     // http.Response Body if it receives an error.
     func (client CardsClient) GetNamedSender(req *http.Request) (*http.Response, error) {
-        return autorest.SendWithSender(client, req,
-        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+            return client.Send(req, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
             }
 
     // GetNamedResponder handles the response to the GetNamed request. The method always
     // closes the http.Response Body.
     func (client CardsClient) GetNamedResponder(resp *http.Response) (result Card, err error) {
-        err = autorest.Respond(
-        resp,
-        client.ByInspecting(),
-        azure.WithErrorUnlessStatusCode(http.StatusOK),
-        autorest.ByUnmarshallingJSON(&result),
-        autorest.ByClosing())
-        result.Response = autorest.Response{Response: resp}
+            err = autorest.Respond(
+            resp,
+            azure.WithErrorUnlessStatusCode(http.StatusOK),
+            autorest.ByUnmarshallingJSON(&result),
+            autorest.ByClosing())
+            result.Response = autorest.Response{Response: resp}
             return
     }
 
 // GetRandom sends the get random request.
 func (client CardsClient) GetRandom(ctx context.Context) (result Card, err error) {
+    if tracing.IsEnabled() {
+        ctx = tracing.StartSpan(ctx, fqdn + "/CardsClient.GetRandom")
+        defer func() {
+            sc := -1
+        if result.Response.Response != nil {
+        sc = result.Response.Response.StatusCode
+        }
+            tracing.EndSpan(ctx, sc, err)
+        }()
+    }
     req, err := client.GetRandomPreparer(ctx)
     if err != nil {
     err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "GetRandom", nil , "Failure preparing request")
@@ -520,39 +529,47 @@ func (client CardsClient) GetRandom(ctx context.Context) (result Card, err error
         }
 
     return
-    }
+}
 
     // GetRandomPreparer prepares the GetRandom request.
     func (client CardsClient) GetRandomPreparer(ctx context.Context) (*http.Request, error) {
     preparer := autorest.CreatePreparer(
-    autorest.AsGet(),
-    autorest.WithBaseURL(client.BaseURI),
-    autorest.WithPath("/cards/random"))
+autorest.AsGet(),
+autorest.WithBaseURL(client.BaseURI),
+autorest.WithPath("/cards/random"))
     return preparer.Prepare((&http.Request{}).WithContext(ctx))
     }
 
     // GetRandomSender sends the GetRandom request. The method will close the
     // http.Response Body if it receives an error.
     func (client CardsClient) GetRandomSender(req *http.Request) (*http.Response, error) {
-        return autorest.SendWithSender(client, req,
-        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+            return client.Send(req, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
             }
 
     // GetRandomResponder handles the response to the GetRandom request. The method always
     // closes the http.Response Body.
     func (client CardsClient) GetRandomResponder(resp *http.Response) (result Card, err error) {
-        err = autorest.Respond(
-        resp,
-        client.ByInspecting(),
-        azure.WithErrorUnlessStatusCode(http.StatusOK),
-        autorest.ByUnmarshallingJSON(&result),
-        autorest.ByClosing())
-        result.Response = autorest.Response{Response: resp}
+            err = autorest.Respond(
+            resp,
+            azure.WithErrorUnlessStatusCode(http.StatusOK),
+            autorest.ByUnmarshallingJSON(&result),
+            autorest.ByClosing())
+            result.Response = autorest.Response{Response: resp}
             return
     }
 
 // Search sends the search request.
 func (client CardsClient) Search(ctx context.Context, q string, unique UniqueStrategy, order SortOrder, dir SortDirection, includeExtras *bool, page *int32) (result CardList, err error) {
+    if tracing.IsEnabled() {
+        ctx = tracing.StartSpan(ctx, fqdn + "/CardsClient.Search")
+        defer func() {
+            sc := -1
+        if result.Response.Response != nil {
+        sc = result.Response.Response.StatusCode
+        }
+            tracing.EndSpan(ctx, sc, err)
+        }()
+    }
     req, err := client.SearchPreparer(ctx, q, unique, order, dir, includeExtras, page)
     if err != nil {
     err = autorest.NewErrorWithError(err, "scryfall.CardsClient", "Search", nil , "Failure preparing request")
@@ -572,54 +589,52 @@ func (client CardsClient) Search(ctx context.Context, q string, unique UniqueStr
         }
 
     return
-    }
+}
 
     // SearchPreparer prepares the Search request.
     func (client CardsClient) SearchPreparer(ctx context.Context, q string, unique UniqueStrategy, order SortOrder, dir SortDirection, includeExtras *bool, page *int32) (*http.Request, error) {
-                queryParameters := map[string]interface{} {
-        "q": autorest.Encode("query",q),
+    queryParameters := map[string]interface{} {
+    "q": autorest.Encode("query",q),
+    }
+        if len(string(unique)) > 0 {
+        queryParameters["unique"] = autorest.Encode("query",unique)
         }
-            if len(string(unique)) > 0 {
-            queryParameters["unique"] = autorest.Encode("query",unique)
-            }
-            if len(string(order)) > 0 {
-            queryParameters["order"] = autorest.Encode("query",order)
-            }
-            if len(string(dir)) > 0 {
-            queryParameters["dir"] = autorest.Encode("query",dir)
-            }
-            if includeExtras != nil {
-            queryParameters["include_extras"] = autorest.Encode("query",*includeExtras)
-            }
-            if page != nil {
-            queryParameters["page"] = autorest.Encode("query",*page)
-            }
+        if len(string(order)) > 0 {
+        queryParameters["order"] = autorest.Encode("query",order)
+        }
+        if len(string(dir)) > 0 {
+        queryParameters["dir"] = autorest.Encode("query",dir)
+        }
+        if includeExtras != nil {
+        queryParameters["include_extras"] = autorest.Encode("query",*includeExtras)
+        }
+        if page != nil {
+        queryParameters["page"] = autorest.Encode("query",*page)
+        }
 
     preparer := autorest.CreatePreparer(
-    autorest.AsGet(),
-    autorest.WithBaseURL(client.BaseURI),
-    autorest.WithPath("/cards/search"),
-    autorest.WithQueryParameters(queryParameters))
+autorest.AsGet(),
+autorest.WithBaseURL(client.BaseURI),
+autorest.WithPath("/cards/search"),
+autorest.WithQueryParameters(queryParameters))
     return preparer.Prepare((&http.Request{}).WithContext(ctx))
     }
 
     // SearchSender sends the Search request. The method will close the
     // http.Response Body if it receives an error.
     func (client CardsClient) SearchSender(req *http.Request) (*http.Response, error) {
-        return autorest.SendWithSender(client, req,
-        autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+            return client.Send(req, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
             }
 
     // SearchResponder handles the response to the Search request. The method always
     // closes the http.Response Body.
     func (client CardsClient) SearchResponder(resp *http.Response) (result CardList, err error) {
-        err = autorest.Respond(
-        resp,
-        client.ByInspecting(),
-        azure.WithErrorUnlessStatusCode(http.StatusOK),
-        autorest.ByUnmarshallingJSON(&result),
-        autorest.ByClosing())
-        result.Response = autorest.Response{Response: resp}
+            err = autorest.Respond(
+            resp,
+            azure.WithErrorUnlessStatusCode(http.StatusOK),
+            autorest.ByUnmarshallingJSON(&result),
+            autorest.ByClosing())
+            result.Response = autorest.Response{Response: resp}
             return
     }
 
